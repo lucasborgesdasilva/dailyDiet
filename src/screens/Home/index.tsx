@@ -12,8 +12,6 @@ import { FoodCard } from "@components/FoodCard";
 import { Container, Header, Logo, Profile } from "./styles";
 import { mealsGetAll } from "@storage/meal/mealsGetAll";
 import { MealProps } from "@storage/meal/mealCreate";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { MEAL_COLLECTION } from "@storage/storedConfig";
 
 export function Home(){
   const { navigate } = useNavigation();
@@ -24,18 +22,19 @@ export function Home(){
     try {
       const data = await mealsGetAll();
 
-      console.log(data);
-
       setFood(data);
-      // AsyncStorage.removeItem(MEAL_COLLECTION)
     } catch (error) {
       throw error;
     }
   }
 
-  useEffect(() => {
+  function handleDetails(meal: MealProps){
+    navigate('details', { meal })
+  }
+
+  useFocusEffect(useCallback(() => {
     fetchMeals();
-  }, [])
+  }, []))
 
   return (
     <Container>      
@@ -62,7 +61,7 @@ export function Home(){
             <FoodCard 
               key={item.time} 
               props={item} 
-              onPress={() => navigate("details")} 
+              onPress={() => handleDetails(item)} 
             />
           </>
         )} 

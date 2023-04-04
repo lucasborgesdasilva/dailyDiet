@@ -1,26 +1,46 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { useTheme } from "styled-components/native";
-import { useNavigation } from '@react-navigation/native';
-
-import { ContainerColorByDiet } from "@components/Status/styles";
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
 import { MaterialIcons } from '@expo/vector-icons';
 
 import { Container, ContainerWrapper, Dot } from "./styles";
 import { PrimaryButton } from "@components/PrimaryButton";
 import { SecondaryButton } from "@components/SecondaryButton";
+import { MealProps } from "@storage/meal/mealCreate";
+import { useCallback, useState } from "react";
+import { mealGetOne } from "@storage/meal/mealGetOne";
 
-type Props = {
-  type?: ContainerColorByDiet; 
+type RouteParams = {
+  meal: MealProps;
 }
 
-export function Details({type = "GOOD"}: Props) {
+export function Details() {
+  const [details, setDetails] = useState<MealProps>()
+
   const { colors, fonts } = useTheme();
   const { goBack } = useNavigation();
 
+  const route = useRoute();
+  const { meal } = route.params as RouteParams;
+
+  async function fetchDetails() {
+    try {
+      const details = await mealGetOne(meal);
+
+      setDetails(details);
+    } catch (error) {
+      Alert.alert('Refeição', 'Não foi possível carregar as informações.')
+    }
+  }
+
+  useFocusEffect(useCallback(() => {
+    fetchDetails();
+  }, []))
+
   return (
     <>
-    <Container type={type}>
+    <Container type={details?.inDiet}>
       <View 
         style={{ 
           flexDirection: "row", 
@@ -47,10 +67,10 @@ export function Details({type = "GOOD"}: Props) {
     <ContainerWrapper>
         <View style={{marginBottom: 24}}>
           <Text style={{ marginTop: 40, marginBottom: 8}}>
-            Sanduíche
+            {details?.name}
           </Text>
           <Text>
-            Sanduíche de pão integral com atum e salada de alface e tomate
+            {details?.description}
           </Text>
         </View>
 
@@ -59,7 +79,7 @@ export function Details({type = "GOOD"}: Props) {
             Data e hora
           </Text>
           <Text>
-            12/08/2022 às 16:00
+            {details?.date} às {details?.time}
           </Text>
         </View>
 
@@ -75,11 +95,11 @@ export function Details({type = "GOOD"}: Props) {
 
             borderRadius: 999,
             }}>
-          <Dot color={colors.green.dark} />
-          <Text>Dentro da dieta</Text>
+          <Dot color={details?.inDiet} />
+          <Text>{details?.inDiet ? 'dentro da dieta' : 'fora da dieta'}</Text>
         </View>
       </ContainerWrapper>
-      <View style={{ width: '100%', marginBottom: 40, paddingHorizontal: 24 }}>
+      <View style={{ position: "absolute", left: 25, bottom: 40, width:'85%' }}>
         <PrimaryButton icon="drive-file-rename-outline" title="Editar refeição" style={{marginBottom: 9 }} />
         <SecondaryButton icon="delete-outline" title="Excluir refeição" />
       </View>
