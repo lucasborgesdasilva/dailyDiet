@@ -12,7 +12,7 @@ export function FoodCard({props, ...rest}: Props) {
       <ContainerWrapper>
         <Time>{props.time}</Time>
         <Divider />
-        <Description>{props.description}</Description>
+        <Description>{props.name}</Description>
       </ContainerWrapper>
       <ColorDiet color={props.inDiet ? 'GOOD' : 'BAD'} />
     </Container>
