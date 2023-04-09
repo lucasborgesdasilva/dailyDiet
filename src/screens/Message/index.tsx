@@ -18,8 +18,6 @@ export function Message() {
   const route = useRoute();
   const { inDiet } = route.params as RouteParams;
 
-  console.log(inDiet)
-
   return (
     <Container>
       <Text 

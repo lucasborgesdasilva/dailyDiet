@@ -38,9 +38,9 @@ export const Title = styled.Text`
 `;
 
 export const Subtitle = styled.Text`
-  font-size: 16px;
+  font-size: ${({ theme }) => theme.fonts.size.md}px;
   color: ${({ theme }) => theme.colors.gray[200]};
-  fontWeight: 400;
+  font-weight: 400;
 `;
 
 export const Dot = styled.View<Props>`
@@ -51,4 +51,34 @@ export const Dot = styled.View<Props>`
     color === true ? theme.colors.green.dark : theme.colors.red.dark};
 
   margin-right: 8px;
+`;
+
+export const ContainerModal = styled.View`
+  justify-content: center;
+
+  width: 100%;
+  height: 25%;
+
+  padding: 24px;
+
+  background-color: ${({ theme }) => theme.colors.gray[700]};
+
+  border-radius: 8px;
+`;
+
+export const TitleModal = styled.Text`
+  color: ${({ theme }) => theme.colors.gray[200]};
+  font-size: ${({ theme }) => theme.fonts.size.lg}px;
+  font-weight: 700;
+
+  text-align: center;
+
+  margin-bottom: 32px;
+`;
+
+export const ContainerModalWrapper = styled.View`
+  flex-direction: row;
+
+  align-items: center;
+  justify-content: space-between;
 `;

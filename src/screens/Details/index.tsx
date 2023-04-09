@@ -1,15 +1,32 @@
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useState } from "react";
 import { useTheme } from "styled-components/native";
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-
+import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { 
+  useFocusEffect, 
+  useNavigation, 
+  useRoute 
+} from '@react-navigation/native';
+import ReactNativeModal from "react-native-modal";
 import { MaterialIcons } from '@expo/vector-icons';
 
-import { Container, Content, Dot, Header, Section, Subtitle, Title } from "./styles";
 import { PrimaryButton } from "@components/PrimaryButton";
 import { SecondaryButton } from "@components/SecondaryButton";
 import { MealProps } from "@storage/meal/mealCreate";
-import { useCallback, useState } from "react";
 import { mealGetOne } from "@storage/meal/mealGetOne";
+import { mealRemove } from "@storage/meal/mealRemove";
+
+import { 
+  Container, 
+  ContainerModal, 
+  ContainerModalWrapper, 
+  Content, 
+  Dot, 
+  Header, 
+  Section, 
+  Subtitle, 
+  Title, 
+  TitleModal
+} from "./styles";
 
 type RouteParams = {
   meal: MealProps;
@@ -19,11 +36,14 @@ export function Details() {
   const [details, setDetails] = useState<MealProps>();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const route = useRoute();
-  const { meal } = route.params as RouteParams;
-  
   const { goBack } = useNavigation();
   const { colors, fonts } = useTheme();
+  const route = useRoute();
+  const { meal } = route.params as RouteParams;
+
+  function toggleModal() {
+    setModalVisible(!modalVisible);
+  }
 
   async function fetchDetails() {
     try {
@@ -35,13 +55,41 @@ export function Details() {
     }
   }
 
+  async function handleMealRemove(meal: string) {
+    try {
+      await mealRemove(meal);
+      goBack();
+    } catch (error) {
+      Alert.alert('Excluir Refeição', 'Não foi possível remover essa refeição.');
+    }
+  }
+
   useFocusEffect(useCallback(() => {
     fetchDetails();
   }, []))
 
   return (
     <Container type={details?.inDiet}>
-
+      <ReactNativeModal 
+        isVisible={modalVisible}
+        children={(
+          <ContainerModal>
+            <TitleModal>Deseja realmente excluir o registro da refeição?</TitleModal>
+            <ContainerModalWrapper>
+              <SecondaryButton 
+                style={{ width: 135}}
+                title="Cancelar" 
+                onPress={() => toggleModal()} 
+              />
+              <PrimaryButton
+                style={{ width: 135}}
+                title="Sim, excluir" 
+                onPress={() => handleMealRemove(details?.name ?? '')}
+              />
+            </ContainerModalWrapper>
+          </ContainerModal>
+        )}
+      />
       <Header>
         <View 
           style={{ 
@@ -100,12 +148,12 @@ export function Details() {
         <PrimaryButton 
           icon="drive-file-rename-outline" 
           title="Editar refeição" 
-          style={{marginBottom: 9 }} 
+          style={{ marginBottom: 9 }} 
         />
         <SecondaryButton 
           icon="delete-outline" 
           title="Excluir refeição"
-          onPress={() => setModalVisible(true)} 
+          onPress={() => toggleModal()} 
         />
       </View>
     </Container>
